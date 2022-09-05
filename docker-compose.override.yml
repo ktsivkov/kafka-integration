@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+
+  php:
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - host
+
+networks:
+  host:
+    name: "host-ntw"

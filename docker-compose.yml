@@ -1,0 +1,22 @@
+version: "3.8"
+
+x-arguments: &arguments
+  args:
+    GID: ${GID}
+    UID: ${UID}
+    GIT_EMAIL: ${GIT_EMAIL}
+    GIT_NAME: ${GIT_NAME}
+    XDEBUG_HOST: ${XDEBUG_HOST}
+    XDEBUG_PORT: ${XDEBUG_PORT}
+
+services:
+  php:
+    container_name: ${PROJECT_NAME}_php
+    restart: unless-stopped
+    build:
+      context: ./docker/php
+      <<: *arguments
+    volumes:
+      - ./:/project/codebase
+    environment:
+      PROJECT_NAME: ${PROJECT_NAME}

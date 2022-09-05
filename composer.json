@@ -1,0 +1,25 @@
+{
+  "name": "ktsivkov/kafka-integration",
+  "description": "Library for kafka integration, and simple API to interact with",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Kristian Tsivkov",
+      "email": "ktsivkov@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.1",
+    "ext-rdkafka": "*"
+  },
+  "autoload": {
+    "psr-4": { "Ktsivkov\\KafkaIntegration\\": "src/" }
+  },
+  "autoload-dev": {
+    "psr-4": { "Ktsivkov\\KafkaIntegration\\Tests\\": "tests/" }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9"
+  }
+}
