@@ -9,13 +9,13 @@ interface ProducerBuilderInterface
     /**
      * @throws KafkaMessageFlushException
      */
-    public function produceMessage(string $message, string $topic, int $msgFlags = 0,): \Ktsivkov\KafkaIntegration\Builder\ProducerBuilder;
+    public function produceMessage(string $topic, string $message, int $messageFlags = 0, ?string $messageKey = null, ?string $messageOpaque = null): ProducerBuilder;
 
-    public function setFlushTimeoutMs(int $flushTimeoutMs): \Ktsivkov\KafkaIntegration\Builder\ProducerBuilder;
+    public function setFlushTimeoutMs(int $flushTimeoutMs): ProducerBuilder;
 
-    public function setFlushRetries(int $flushRetries): \Ktsivkov\KafkaIntegration\Builder\ProducerBuilder;
+    public function setFlushRetries(int $flushRetries): ProducerBuilder;
 
-    public function setPollTimeoutMs(int $pollTimeoutMs): \Ktsivkov\KafkaIntegration\Builder\ProducerBuilder;
+    public function setPollTimeoutMs(int $pollTimeoutMs): ProducerBuilder;
 
-    public function setPartition(int $partition): \Ktsivkov\KafkaIntegration\Builder\ProducerBuilder;
+    public function setPartition(int $partition): ProducerBuilder;
 }

@@ -9,11 +9,11 @@ use Ktsivkov\KafkaIntegration\Exception\KafkaSubscribeException;
 use Ktsivkov\KafkaIntegration\Exception\KafkaTimeoutException;
 use Ktsivkov\KafkaIntegration\Factory\KafkaConfigFactoryInterface;
 use Ktsivkov\KafkaIntegration\Factory\KafkaConsumerFactoryInterface;
+use Ktsivkov\KafkaIntegration\KafkaMessageHandlerInterface;
 use RdKafka\Exception;
 use RdKafka\KafkaConsumer;
-use RdKafka\Message;
 
-class ConsumerBuilder implements ConsumerBuilderInterface
+final class ConsumerBuilder implements ConsumerBuilderInterface
 {
     private readonly KafkaConsumer $consumer;
     private int $timeoutMs = 1000;
@@ -29,7 +29,7 @@ class ConsumerBuilder implements ConsumerBuilderInterface
     /**
      * @throws KafkaConsumeException | KafkaSubscribeException | KafkaTimeoutException | KafkaException
      */
-    public function consumeMessage(array $topics, callable $callable): self
+    public function consumeMessage(array $topics, KafkaMessageHandlerInterface $messageHandler): self
     {
         $this->subscribe($topics);
         try {
@@ -37,7 +37,7 @@ class ConsumerBuilder implements ConsumerBuilderInterface
         } catch (Exception $exception) {
             throw new KafkaConsumeException($exception->getMessage(), $exception->getCode(), $exception);
         }
-        $this->handleMessage($handledMessage, $callable);
+        $messageHandler->handle($handledMessage);
         return $this;
     }
 
@@ -52,21 +52,6 @@ class ConsumerBuilder implements ConsumerBuilderInterface
         } catch (\Exception $exception) {
             throw new KafkaSubscribeException($exception->getMessage(), $exception->getCode(), $exception);
         }
-    }
-
-    private function handleMessage(Message $message, callable $callable): void
-    {
-        if ($message->err === RD_KAFKA_RESP_ERR_NO_ERROR) {
-            $callable($message);
-            return;
-        }
-        if ($message->err === RD_KAFKA_RESP_ERR__PARTITION_EOF) {
-            return;
-        }
-        if ($message->err === RD_KAFKA_RESP_ERR__TIMED_OUT) {
-            throw new KafkaTimeoutException();
-        }
-        throw new KafkaException($message->errstr());
     }
 
     public function setTimeoutMs(int $timeoutMs): self

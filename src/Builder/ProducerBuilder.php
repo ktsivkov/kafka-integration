@@ -8,8 +8,9 @@ use Ktsivkov\KafkaIntegration\Factory\KafkaConfigFactoryInterface;
 use Ktsivkov\KafkaIntegration\Factory\KafkaProducerFactoryInterface;
 use RdKafka\Producer;
 use RdKafka\ProducerTopic;
+use RdKafka\TopicConf;
 
-class ProducerBuilder implements ProducerBuilderInterface
+final class ProducerBuilder implements ProducerBuilderInterface
 {
     private readonly Producer $producer;
     /** @var ProducerTopic[] */
@@ -35,13 +36,15 @@ class ProducerBuilder implements ProducerBuilderInterface
      * @throws KafkaMessageFlushException
      */
     public function produceMessage(
-        string $message,
-        string $topic,
-        int    $msgFlags = 0,
+        string  $topic,
+        string  $message,
+        int     $messageFlags = 0,
+        ?string $messageKey = null,
+        ?string $messageOpaque = null,
     ): self
     {
         $producerTopic = $this->getTopic($topic);
-        $producerTopic->produce($this->partition, $msgFlags, $message);
+        $producerTopic->produce($this->partition, $messageFlags, $message, $messageKey, $messageOpaque);
         $this->producer->poll($this->pollTimeoutMs);
         $this->flush();
         return $this;
