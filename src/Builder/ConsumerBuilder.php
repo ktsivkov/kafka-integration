@@ -7,19 +7,19 @@ use Ktsivkov\KafkaIntegration\Exception\KafkaConsumeException;
 use Ktsivkov\KafkaIntegration\Exception\KafkaException;
 use Ktsivkov\KafkaIntegration\Exception\KafkaSubscribeException;
 use Ktsivkov\KafkaIntegration\Exception\KafkaTimeoutException;
-use Ktsivkov\KafkaIntegration\Factory\KafkaConfigFactoryInterface;
 use Ktsivkov\KafkaIntegration\Factory\KafkaConsumerFactoryInterface;
 use Ktsivkov\KafkaIntegration\KafkaMessageHandlerInterface;
+use Ktsivkov\KafkaIntegration\Provider\KafkaConfigProviderInterface;
 use RdKafka\Exception;
 use RdKafka\KafkaConsumer;
 
 final class ConsumerBuilder implements ConsumerBuilderInterface
 {
+    private int $timeoutMs = 5000;
     private readonly KafkaConsumer $consumer;
-    private int $timeoutMs = 1000;
 
     public function __construct(
-        private readonly KafkaConfigFactoryInterface   $kafkaConfigFactory,
+        private readonly KafkaConfigProviderInterface  $kafkaConfigFactory,
         private readonly KafkaConsumerFactoryInterface $kafkaConsumerFactory,
     )
     {

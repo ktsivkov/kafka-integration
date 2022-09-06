@@ -4,11 +4,10 @@ declare(strict_types=1);
 namespace Ktsivkov\KafkaIntegration\Builder;
 
 use Ktsivkov\KafkaIntegration\Exception\KafkaMessageFlushException;
-use Ktsivkov\KafkaIntegration\Factory\KafkaConfigFactoryInterface;
 use Ktsivkov\KafkaIntegration\Factory\KafkaProducerFactoryInterface;
+use Ktsivkov\KafkaIntegration\Provider\KafkaConfigProviderInterface;
 use RdKafka\Producer;
 use RdKafka\ProducerTopic;
-use RdKafka\TopicConf;
 
 final class ProducerBuilder implements ProducerBuilderInterface
 {
@@ -19,15 +18,12 @@ final class ProducerBuilder implements ProducerBuilderInterface
     /**
      * Defaults
      */
-    private int $flushTimeoutMs = 500;
+    private int $flushTimeoutMs = 1000;
     private int $flushRetries = 3;
     private int $pollTimeoutMs = 0;
     private int $partition = RD_KAFKA_PARTITION_UA;
 
-    public function __construct(
-        private readonly KafkaConfigFactoryInterface   $kafkaConfigFactory,
-        private readonly KafkaProducerFactoryInterface $kafkaProducerFactory,
-    )
+    public function __construct(private readonly KafkaConfigProviderInterface $kafkaConfigFactory, private readonly KafkaProducerFactoryInterface $kafkaProducerFactory,)
     {
         $this->producer = $this->kafkaProducerFactory->getProducer($this->kafkaConfigFactory->getConfig());
     }
@@ -35,13 +31,7 @@ final class ProducerBuilder implements ProducerBuilderInterface
     /**
      * @throws KafkaMessageFlushException
      */
-    public function produceMessage(
-        string  $topic,
-        string  $message,
-        int     $messageFlags = 0,
-        ?string $messageKey = null,
-        ?string $messageOpaque = null,
-    ): self
+    public function produceMessage(string $topic, string $message, int $messageFlags = 0, ?string $messageKey = null, ?string $messageOpaque = null,): self
     {
         $producerTopic = $this->getTopic($topic);
         $producerTopic->produce($this->partition, $messageFlags, $message, $messageKey, $messageOpaque);
@@ -66,7 +56,7 @@ final class ProducerBuilder implements ProducerBuilderInterface
                 return;
             }
         }
-        throw new KafkaMessageFlushException('Was unable to flush, messages might be lost!');
+        throw new KafkaMessageFlushException(sprintf('Was unable to flush, messages might be lost! RD_KAFKA_CODE: %d', $result));
     }
 
     public function setFlushTimeoutMs(int $flushTimeoutMs): self

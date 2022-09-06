@@ -18,7 +18,7 @@ abstract class AbstractKafkaMessageHandler implements KafkaMessageHandlerInterfa
             return;
         }
         if ($message->err === RD_KAFKA_RESP_ERR__TIMED_OUT) {
-            throw new KafkaTimeoutException();
+            throw new KafkaTimeoutException($message->errstr());
         }
         throw new KafkaException($message->errstr());
     }
